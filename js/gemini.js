@@ -9,7 +9,7 @@ export async function generateGeminiResponse(history, systemPrompt) {
         });
 
         if(!response.ok) {
-            const errorBody = await response.text();
+            const errorData = await response.text();
             throw new Error(errorData.error || 'The server returned an error');
         }
 

@@ -4,7 +4,7 @@ export default async function handler(request, response) {
     }
 
     try {
-        const {history, systemPrompt} = await request.json();
+        const {history, systemPrompt} = request.body();
 
         const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 

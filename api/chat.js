@@ -9,29 +9,33 @@ export default async function handler(request) {
         const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
         if(!GEMINI_API_KEY) {
+            console.error("Gemini API Key environment variable not set!");
             throw new Error("API key is not set on this server");
         }
 
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
         
+        console.log("Attempting to fetch from Gemini API...");
         const geminiResponse = await fetch(API_URL, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({contents: history, systemInstruction: {parts: [{text: systemPrompt}]}})
         });
+        console.log("Fetch call complete. Response status:", geminiResponse.status);
 
         if(!geminiResponse.ok) {
             const errorBody = await geminiResponse.text();
             throw new Error(`Gemini API Error: ${geminiResponse.status} - ${errorBody}`);
         }
 
+        console.log("Succesfully retrieved data from Gemini API. Sending response to client.")
         const data = await geminiResponse.json();
         return new Response(JSON.stringify(data), {
             status: 200,
             headers: {'Content-Type': 'application/json'}
         });
     } catch(error) {
-        console.error("Backend error:", error);
+        console.error("Critical error in backend function:", error);
 
         return new Response(JSON.stringify({error: "An internal server error occurred."}), {
             status: 500,

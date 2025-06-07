@@ -1,0 +1,5 @@
+# Secrets file
+js/config.js
+
+node_modules/
+.vscode/

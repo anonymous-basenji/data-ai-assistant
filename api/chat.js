@@ -1,8 +1,6 @@
-export const runtime = 'edge';
-
-export default async function handler(request) {
+export default async function handler(request, response) {
     if(request.method !== 'POST') {
-        return new Response('Method Not Allowed', {status: 405});
+        return response.status(405).json({error : 'Method not allowed'});
     }
 
     try {
@@ -17,11 +15,16 @@ export default async function handler(request) {
 
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
         
+        const requestBody = {
+            contents: history,
+            systemInstruction: {parts : [{text: systemPrompt}]}
+        };
+
         console.log("Attempting to fetch from Gemini API...");
         const geminiResponse = await fetch(API_URL, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({contents: history, systemInstruction: {parts: [{text: systemPrompt}]}})
+            body: JSON.stringify(requestBody)
         });
         console.log("Fetch call complete. Response status:", geminiResponse.status);
 
@@ -32,16 +35,10 @@ export default async function handler(request) {
 
         console.log("Succesfully retrieved data from Gemini API. Sending response to client.")
         const data = await geminiResponse.json();
-        return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: {'Content-Type': 'application/json'}
-        });
+        return response.status(200).json(data);
     } catch(error) {
         console.error("Critical error in backend function:", error);
 
-        return new Response(JSON.stringify({error: "An internal server error occurred."}), {
-            status: 500,
-            headers: {'Content-Type': 'application/json'}
-        })
+        return response.status(500).json({error: "An internal server error occured."});
     }
 }

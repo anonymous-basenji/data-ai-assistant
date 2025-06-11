@@ -23,7 +23,8 @@ export async function generateGeminiResponse(history, systemPrompt) {
         }
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        if(!text) {
+        if(text === '') {}
+        else if(!text) {
             throw new Error("No text found in the API response");
         }
 
